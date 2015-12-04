@@ -4,8 +4,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ConnectActivity">
 
-    <include layout="@layout/content_main" />
+    <include layout="@layout/content_connect" />
 
 </LinearLayout>
