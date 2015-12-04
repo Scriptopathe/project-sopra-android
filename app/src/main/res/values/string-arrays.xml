@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sites_array">
+        <item>Toulouse Les Ramassiers</item>
+        <item>Toulouse Colomiers Perget</item>
+        <item>Toulouse Colomiers 2</item>
+    </string-array>
+</resources>
