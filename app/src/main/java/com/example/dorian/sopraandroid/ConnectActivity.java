@@ -75,6 +75,8 @@ public class ConnectActivity extends AppCompatActivity {
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);*/
     }
+
+
     public static String excutePost(String targetURL, String urlParameters) {
         HttpURLConnection connection = null;
         try {

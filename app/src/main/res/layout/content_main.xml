@@ -30,7 +30,8 @@
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/normal_padding">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -64,25 +65,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="from "
+                android:text="from  "
                 android:id="@+id/from_date" />
 
             <EditText
-                android:layout_width="55dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/from_Date" />
+                android:id="@+id/from_Date"
+                android:hint="dd-MM-yyyy"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="to "
+                android:text="  to  "
                 android:id="@+id/to_date" />
 
             <EditText
-                android:layout_width="55dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/to_Date" />
+                android:id="@+id/to_Date"
+                android:hint="dd-MM-yyyy"/>
 
         </LinearLayout>
 
@@ -107,9 +110,10 @@
                 android:id="@+id/from_time" />
 
             <EditText
-                android:layout_width="55dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/fromTime" />
+                android:id="@+id/from_Time"
+                android:hint="hh:mm"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -119,9 +123,11 @@
                 android:id="@+id/to_time" />
 
             <EditText
-                android:layout_width="55dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/to_Time" />
+                android:id="@+id/to_Time"
+                android:hint="hh:mm" />
+
 
         </LinearLayout>
 
