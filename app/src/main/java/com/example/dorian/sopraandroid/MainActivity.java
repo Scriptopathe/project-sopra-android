@@ -3,6 +3,7 @@ package com.example.dorian.sopraandroid;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import android.app.Activity;
@@ -35,7 +36,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private EditText fromTimeEtxt;
     private EditText toTimeEtxt;
 
-    private DatePickerDialog fromTimePickerDialog;
+    private TimePickerDialog fromTimePickerDialog;
     private TimePickerDialog toTimePickerDialog;
     private SimpleDateFormat timeFormatter;
 
@@ -59,6 +60,11 @@ public class MainActivity extends Activity implements OnClickListener {
         dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
         fromDateEtxt.setText(dateFormatter.format(new Date().getTime()));
         toDateEtxt.setText(dateFormatter.format(new Date().getTime()));
+
+
+        dateFormatter = new SimpleDateFormat("kk:mm");
+        fromTimeEtxt.setText(dateFormatter.format(new Date().getTime()));
+        toTimeEtxt.setText(dateFormatter.format(new Date().getTime()));
     }
 
     private void findViewsById() {
@@ -78,9 +84,12 @@ public class MainActivity extends Activity implements OnClickListener {
         fromDateEtxt.setOnClickListener(this);
         toDateEtxt.setOnClickListener(this);
 
-        Calendar newCalendar = Calendar.getInstance();
-        fromDatePickerDialog = new DatePickerDialog(this, new OnDateSetListener() {
+        fromTimeEtxt.setOnClickListener(this);
+        toTimeEtxt.setOnClickListener(this);
 
+        Calendar newCalendar = Calendar.getInstance();
+
+        fromDatePickerDialog = new DatePickerDialog(this, new OnDateSetListener() {
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 Calendar newDate = Calendar.getInstance();
                 newDate.set(year, monthOfYear, dayOfMonth);
@@ -103,6 +112,19 @@ public class MainActivity extends Activity implements OnClickListener {
             }
         },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
 
+
+        fromTimePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                fromTimeEtxt.setText(hourOfDay + ":" + minute);
+            }
+        }, newCalendar.get(Calendar.HOUR_OF_DAY), newCalendar.get(Calendar.MINUTE), true);
+        //fromTimePickerDialog.show();
+
+        toTimePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                toTimeEtxt.setText(hourOfDay + ":" + minute);
+            }
+        }, newCalendar.get(Calendar.HOUR_OF_DAY), newCalendar.get(Calendar.MINUTE), true);
     }
 
     @Override
@@ -116,8 +138,15 @@ public class MainActivity extends Activity implements OnClickListener {
     public void onClick(View view) {
         if(view == fromDateEtxt) {
             fromDatePickerDialog.show();
-        } else if(view == toDateEtxt) {
+        }
+        else if(view == toDateEtxt) {
             toDatePickerDialog.show();
+        }
+        else if(view == fromTimeEtxt) {
+            fromTimePickerDialog.show();
+        }
+        else if(view == toTimeEtxt) {
+            toTimePickerDialog.show();
         }
     }
 
