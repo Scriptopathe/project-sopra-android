@@ -1,6 +1,7 @@
 package com.example.dorian.sopraandroid;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -26,8 +27,8 @@ public class ConnectActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect);
         connectButton = (Button) findViewById(R.id.connectButton);
-        nick = (EditText)findViewById(R.id.editText);
-        pass = (EditText)findViewById(R.id.editText);
+        nick = (EditText)findViewById(R.id.editTextUsername);
+        pass = (EditText)findViewById(R.id.editTextPassword);
 
         this.connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,7 +51,7 @@ public class ConnectActivity extends AppCompatActivity {
                             URLEncoder.encode(param1, charset),
                             URLEncoder.encode(param2, charset));
 
-                    String targetURL = ("http://localhost:8080/Api/Login");
+                    String targetURL = ("http://10.0.2.2:8080/Api/Login");
                     System.out.println("////////////////////// avant l'excute Post ! /////////////////////////");
                     new HttpPostRequestTask().execute(targetURL, query);
                 } catch (UnsupportedEncodingException e) {
