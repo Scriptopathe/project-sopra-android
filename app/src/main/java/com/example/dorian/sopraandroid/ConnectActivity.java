@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
@@ -28,6 +31,10 @@ public class ConnectActivity extends AppCompatActivity {
         connectButton = (Button) findViewById(R.id.connectButton);
         nick = (EditText)findViewById(R.id.editTextUsername);
         pass = (EditText)findViewById(R.id.editTextPassword);
+
+
+        // Permet la gestion des cookies
+        CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
 
         this.connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,7 +57,7 @@ public class ConnectActivity extends AppCompatActivity {
                             URLEncoder.encode(param2, charset));
 
                     String targetURL = ("http://10.0.2.2:8080/Api/Login");
-                    System.out.println("////////////////////// avant l'excute Post ! /////////////////////////");
+                    System.out.println("////////////////////// avant l'execute Post ! /////////////////////////");
                     final AsyncTask<String, Void, ResponseHTTP> execute = new HttpPostRequestTask().execute(targetURL, query);
                     try {
                         ResponseHTTP result = execute.get();
@@ -59,7 +66,7 @@ public class ConnectActivity extends AppCompatActivity {
                             case 200:
                                 InputStream is = result.getResponse();
                                 String response = convertStreamToString(is);
-                                System.out.println("String réponse : "+response);
+                                System.out.println("["+responseCode+"] String réponse à la connexion: "+response);
 
                                 Intent secondeActivite = new Intent(ConnectActivity.this, MainActivity.class);
                                 // Puis on lance l'intent !

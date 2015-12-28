@@ -34,7 +34,10 @@ public class HttpPostRequestTask extends AsyncTask<String, Void, ResponseHTTP> {
         int status = 0;
         try {
             OutputStream output = httpConnection.getOutputStream();
-            output.write(urls[1].getBytes("UTF-8"));
+            // S'il y a des paramètres
+            if (urls.length == 2) {
+                output.write(urls[1].getBytes("UTF-8"));
+            }
             response = httpConnection.getInputStream();
             status = httpConnection.getResponseCode();
         } catch (IOException e) {
