@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -53,12 +55,43 @@ public class MainActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Spinner spinner = (Spinner) findViewById(R.id.sites_spinner);
+       /* Spinner spinner = (Spinner) findViewById(R.id.sites_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sites_array, android.R.layout.simple_spinner_item);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);*/
+
+
+        String targetURL = ("http://10.0.2.2:8080/Api/Sites");
+        System.out.println("////////////////////// avant l'execute Get ! /////////////////////////");
+        final AsyncTask<String, Void, ResponseHTTP> execute = new HttpGetRequestTask().execute(targetURL);
+        try {
+            ResponseHTTP result = execute.get();
+            int responseCode = result.getResponseCode();
+            switch(responseCode) {
+                case 200:
+                    String response = result.getResponseString();
+                    System.out.println("["+responseCode+"] String réponse à /Api/Sites : "+response);
+                    break;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        // you need to have a list of data that you want the spinner to display
+        List<String> spinnerArray =  new ArrayList<String>();
+        spinnerArray.add("item1");
+        spinnerArray.add("item2");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_spinner_item, spinnerArray);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        Spinner spinner = (Spinner) findViewById(R.id.sites_spinner);
         spinner.setAdapter(adapter);
 
         findViewsById();
@@ -236,10 +269,9 @@ public class MainActivity extends Activity implements OnClickListener {
             int responseCode = result.getResponseCode();
             switch(responseCode) {
                 case 200:
-                    InputStream is = result.getResponse();
-                    //String response = convertStreamToString(is);
-                    System.out.println("["+responseCode+"] String réponse à la déconnexion : "/*+response*/);
-                   break;
+                    String response = result.getResponseString();
+                    System.out.println("["+ responseCode + "] String réponse /Api/Logout : "+response);
+                    break;
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -248,25 +280,5 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-    private static String convertStreamToString(InputStream is) {
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append((line + "\n"));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
-    }
 }

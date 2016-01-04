@@ -2,8 +2,10 @@ package com.example.dorian.sopraandroid;
 
 import android.os.AsyncTask;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
@@ -44,8 +46,30 @@ public class HttpPostRequestTask extends AsyncTask<String, Void, ResponseHTTP> {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        responseHTTP = new ResponseHTTP(response, status);
+        responseHTTP = new ResponseHTTP(this.convertStreamToString(response), status);
 
         return responseHTTP;
+    }
+
+    private String convertStreamToString(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line = null;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append((line + "\n"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return sb.toString();
     }
 }

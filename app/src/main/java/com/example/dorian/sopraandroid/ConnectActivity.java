@@ -64,9 +64,8 @@ public class ConnectActivity extends AppCompatActivity {
                         int responseCode = result.getResponseCode();
                         switch(responseCode) {
                             case 200:
-                                InputStream is = result.getResponse();
-                                String response = convertStreamToString(is);
-                                System.out.println("["+responseCode+"] String réponse à la connexion: "+response);
+                                String response = result.getResponseString();
+                                System.out.println("["+responseCode+"] String réponse à /Api/Login : "+response);
 
                                 Intent secondeActivite = new Intent(ConnectActivity.this, MainActivity.class);
                                 // Puis on lance l'intent !
@@ -83,27 +82,5 @@ public class ConnectActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private static String convertStreamToString(InputStream is) {
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append((line + "\n"));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
     }
 }
