@@ -4,10 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -28,6 +31,13 @@ import android.widget.EditText;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+
+import com.example.dorian.sopraandroid.model.Site;
+
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 public class MainActivity extends Activity implements OnClickListener {
 
@@ -50,9 +60,11 @@ public class MainActivity extends Activity implements OnClickListener {
     private Spinner siteSpinner;
     private EditText tailleEtxt;
 
+    private ArrayList<Site> listeSites;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.listeSites = new ArrayList<Site>();
         setContentView(R.layout.activity_main);
 
        /* Spinner spinner = (Spinner) findViewById(R.id.sites_spinner);
@@ -63,6 +75,7 @@ public class MainActivity extends Activity implements OnClickListener {
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);*/
 
+        List<String> spinnerArray =  new ArrayList<String>();
 
         String targetURL = ("http://10.0.2.2:8080/Api/Sites");
         System.out.println("////////////////////// avant l'execute Get ! /////////////////////////");
@@ -74,6 +87,31 @@ public class MainActivity extends Activity implements OnClickListener {
                 case 200:
                     String response = result.getResponseString();
                     System.out.println("["+responseCode+"] String réponse à /Api/Sites : "+response);
+                    SAXBuilder saxBuilder = new SAXBuilder();
+                    try {
+                        Document doc = saxBuilder.build(new StringReader(response));
+                        Element xmlfile = doc.getRootElement();
+                        System.out.println("ROOT -->"+xmlfile);
+                        List<Element> list = xmlfile.getChildren("Site");
+                        System.out.println("Nombre de sites : "+list.size());
+
+                        Iterator i = list.iterator();
+
+                        while (i.hasNext()) {
+                            Element courant = (Element)i.next();
+                            Site s = new Site(courant);
+                            System.out.println(s);
+                            this.listeSites.add(s);
+                        }
+                        // you need to have a list of data that you want the spinner to display
+                        for (int j = 0; j < this.listeSites.size(); ++j) {
+                            spinnerArray.add(this.listeSites.get(j).getName());
+                        }
+                    } catch (JDOMException e) {
+                        // handle JDOMExceptio n
+                    } catch (IOException e) {
+                        // handle IOException
+                    }
                     break;
             }
         } catch (InterruptedException e) {
@@ -82,10 +120,7 @@ public class MainActivity extends Activity implements OnClickListener {
             e.printStackTrace();
         }
 
-        // you need to have a list of data that you want the spinner to display
-        List<String> spinnerArray =  new ArrayList<String>();
-        spinnerArray.add("item1");
-        spinnerArray.add("item2");
+
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_spinner_item, spinnerArray);
@@ -102,9 +137,9 @@ public class MainActivity extends Activity implements OnClickListener {
         this.toDateEtxt.setText(this.dateFormatter.format(new Date().getTime()));
 
 
-        this.dateFormatter = new SimpleDateFormat("kk:mm");
-        this.fromTimeEtxt.setText(this.dateFormatter.format(new Date().getTime()));
-        this.toTimeEtxt.setText(this.dateFormatter.format(new Date().getTime()));
+        DateFormat timeFormatter = new SimpleDateFormat("kk:mm");
+        this.fromTimeEtxt.setText(timeFormatter.format(new Date().getTime()));
+        this.toTimeEtxt.setText(timeFormatter.format(new Date().getTime()));
     }
 
     private void findViewsById() {
