@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.TimePickerDialog;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
@@ -26,12 +29,15 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
+import com.example.dorian.sopraandroid.model.Particularity;
 import com.example.dorian.sopraandroid.model.Site;
 
 import org.jdom2.Document;
@@ -60,12 +66,18 @@ public class MainActivity extends Activity implements OnClickListener {
     private Spinner siteSpinner;
     private EditText tailleEtxt;
 
+    private LinearLayout checkBoxesLayout;
+
     private ArrayList<Site> listeSites;
+    private ArrayList<Particularity> listeParticularities;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.listeSites = new ArrayList<Site>();
+        this.listeParticularities = new ArrayList<Particularity>();
+
         setContentView(R.layout.activity_main);
+        findViewsById();
 
        /* Spinner spinner = (Spinner) findViewById(R.id.sites_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
@@ -77,6 +89,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         List<String> spinnerArray =  new ArrayList<String>();
 
+        /*** Requete Sites ***/
         String targetURL = ("http://10.0.2.2:8080/Api/Sites");
         System.out.println("////////////////////// avant l'execute Get ! /////////////////////////");
         final AsyncTask<String, Void, ResponseHTTP> execute = new HttpGetRequestTask().execute(targetURL);
@@ -120,16 +133,35 @@ public class MainActivity extends Activity implements OnClickListener {
             e.printStackTrace();
         }
 
-
-
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_spinner_item, spinnerArray);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        Spinner spinner = (Spinner) findViewById(R.id.sites_spinner);
-        spinner.setAdapter(adapter);
+        this.siteSpinner.setAdapter(adapter);
 
-        findViewsById();
+
+        /*** Requete Location ***/
+        targetURL = ("http://10.0.2.2:8080/Api/Location");
+        System.out.println("////////////////////// avant l'execute Get ! /////////////////////////");
+        final AsyncTask<String, Void, ResponseHTTP> execute2 = new HttpGetRequestTask().execute(targetURL);
+        try {
+            ResponseHTTP result = execute2.get();
+            int responseCode = result.getResponseCode();
+            switch(responseCode) {
+                case 200:
+                    String str = result.getResponseString().replaceAll("(\\r|\\n)", "");
+                    int response = Integer.parseInt(str);
+                    System.out.println("["+responseCode+"] String réponse à /Api/Location : "+response);
+                    this.siteSpinner.setSelection(response-1);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+
+
         setDateTimeFields();
 
         this.dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
@@ -140,6 +172,51 @@ public class MainActivity extends Activity implements OnClickListener {
         DateFormat timeFormatter = new SimpleDateFormat("kk:mm");
         this.fromTimeEtxt.setText(timeFormatter.format(new Date().getTime()));
         this.toTimeEtxt.setText(timeFormatter.format(new Date().getTime()));
+
+        /*** Requete Particulariré ***/
+        targetURL = ("http://10.0.2.2:8080/Api/Particularities");
+        System.out.println("////////////////////// avant l'execute Get ! /////////////////////////");
+        final AsyncTask<String, Void, ResponseHTTP> execute3 = new HttpGetRequestTask().execute(targetURL);
+        try {
+            ResponseHTTP result = execute3.get();
+            int responseCode = result.getResponseCode();
+            switch(responseCode) {
+                case 200:
+                    String response = result.getResponseString();
+                    System.out.println("["+responseCode+"] String réponse à /Api/Particularities : "+response);
+                    SAXBuilder saxBuilder = new SAXBuilder();
+                    try {
+                        Document doc = saxBuilder.build(new StringReader(response));
+                        Element xmlfile = doc.getRootElement();
+                        System.out.println("ROOT -->"+xmlfile);
+                        List<Element> list = xmlfile.getChildren("Particularity");
+                        Iterator i = list.iterator();
+
+                        while (i.hasNext()) {
+                            Element courant = (Element)i.next();
+                            Particularity p = new Particularity(courant);
+                            this.listeParticularities.add(p);
+                        }
+                        for (int j = 0; j < this.listeParticularities.size(); ++j) {
+                            CheckBox cb = new CheckBox(getApplicationContext());
+                            cb.setText(this.listeParticularities.get(j).getName());
+                            cb.setId(this.listeParticularities.get(j).getId());
+                            cb.setTextColor(Color.BLACK);
+                            cb.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                            this.checkBoxesLayout.addView(cb);
+                        }
+                    } catch (JDOMException e) {
+                        // handle JDOMExceptio n
+                    } catch (IOException e) {
+                        // handle IOException
+                    }
+                    break;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     private void findViewsById() {
@@ -155,9 +232,12 @@ public class MainActivity extends Activity implements OnClickListener {
         this.toTimeEtxt.setInputType(InputType.TYPE_NULL);
 
         this.searchButton = (Button) findViewById(R.id.search);
+        this.searchButton.setOnClickListener(this);
 
-        this.siteSpinner =(Spinner) findViewById(R.id.sites_spinner);
+        this.siteSpinner = (Spinner) findViewById(R.id.sites_spinner);
         this.tailleEtxt = (EditText) findViewById(R.id.taille);
+
+        this.checkBoxesLayout = (LinearLayout) findViewById(R.id.checkBoxesLayout);
     }
 
     private void setDateTimeFields() {
@@ -229,37 +309,36 @@ public class MainActivity extends Activity implements OnClickListener {
             toTimePickerDialog.show();
         }
         else if (view == searchButton) {
-            /*String charset = "UTF-8";  // Or in Java 7 and later, use the constant: java.nio.charset.StandardCharsets.UTF_8.name()
-            int siteId=-1, int personCount=-1, List<ParticularityIdentifier> particularities=null
-            String param1 = this.siteSpinner.getSelectedItem().toString();
-            String param2 = this.tailleEtxt.getText().toString();
+            //String charset = "UTF-8";  // Or in Java 7 and later, use the constant: java.nio.charset.StandardCharsets.UTF_8.name()
+            //int siteId=-1, int personCount=-1, List<ParticularityIdentifier> particularities=null, DateTime? startDate = null, DateTime? endDate = null)
+            int param1 = this.siteSpinner.getSelectedItemPosition()+1;
+            int param2 = Integer.parseInt(this.tailleEtxt.getText().toString());
+            String startDate = fromDateEtxt.getText().toString();
+            String endDate = toDateEtxt.getText().toString();
+            String[] from_tab = startDate.split("-");
+            String[] to_tab = endDate.split("-");
+            String param4 = from_tab[1]+"/"+from_tab[0]+"/"+from_tab[2]+"-"+fromTimeEtxt.getText().toString()+":00";
+            String param5 = to_tab[1]+"/"+to_tab[0]+"/"+to_tab[2]+"-"+toTimeEtxt.getText().toString()+":00";
 
+            String query = String.format("siteId="+param1+"&personCount="+param2+"&startDate"+param4+"&endDate"+param5);
+
+            String targetURL = ("http://10.0.2.2:8080/Api/SearchWithDate");
+            System.out.println("////////////////////// avant l'execute Post ! /////////////////////////");
+            final AsyncTask<String, Void, ResponseHTTP> execute = new HttpGetRequestTask().execute(targetURL, query);
             try {
-                String query = String.format("siteId=%s&personCount=%s",
-                        URLEncoder.encode(param1, charset),ok
-                        URLEncoder.encode(param2, charset));
-
-                String targetURL = ("http://10.0.2.2:8080/Api/Search");
-                System.out.println("////////////////////// avant l'execute Post ! /////////////////////////");
-                final AsyncTask<String, Void, ResponseHTTP> execute = new HttpPostRequestTask().execute(targetURL, query);
-                try {
-                    ResponseHTTP result = execute.get();
-                    int responseCode = result.getResponseCode();
-                    switch(responseCode) {
-                        case 200:
-                            InputStream is = result.getResponse();
-                            String response = convertStreamToString(is);
-                            System.out.println("[" + responseCode + "] String réponse à la connexion: " + response);
-                            break;
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                ResponseHTTP result = execute.get();
+                int responseCode = result.getResponseCode();
+                switch(responseCode) {
+                    case 200:
+                        String response = result.getResponseString();
+                        System.out.println("[" + responseCode + "] String réponse à la connexion: " + response);
+                        break;
                 }
-            } catch (UnsupportedEncodingException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
-            }*/
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
         }
     }
 

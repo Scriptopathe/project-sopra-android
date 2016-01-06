@@ -5,15 +5,17 @@
     android:layout_height="match_parent"
     android:weightSum="1"
     tools:context=".MainActivity">
-
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/small_padding"
+    android:layout_marginRight="@dimen/small_padding"
+    android:layout_marginTop="@dimen/small_padding"
+    android:layout_marginBottom="@dimen/small_padding">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginLeft="@dimen/small_padding"
-        android:layout_marginRight="@dimen/small_padding"
-        android:layout_marginTop="@dimen/small_padding"
-        android:layout_marginBottom="@dimen/small_padding">
+        android:layout_height="fill_parent">
 
         <TextView
             android:layout_width="wrap_content"
@@ -140,11 +142,12 @@
             android:layout_marginTop="@dimen/normal_padding" />
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:id="@+id/checkBoxesLayout">
 
-            <CheckBox
+            <!--<CheckBox
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="video"
@@ -160,7 +163,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="secure room"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />-->
 
         </LinearLayout>
 
@@ -173,6 +176,6 @@
             android:gravity="center_horizontal"/>
 
     </LinearLayout>
-
+</ScrollView>
 
 </LinearLayout>

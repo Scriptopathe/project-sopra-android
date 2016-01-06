@@ -8,10 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -46,7 +42,7 @@ public class ConnectActivity extends AppCompatActivity {
                 String nickname = nick.getText().toString();
                 String password = pass.getText().toString();
 
-                String charset = "UTF-8";  // Or in Java 7 and later, use the constant: java.nio.charset.StandardCharsets.UTF_8.name()
+                String charset = "UTF-8";
                 String param1 = nickname;
                 String param2 = password;
 // ...
