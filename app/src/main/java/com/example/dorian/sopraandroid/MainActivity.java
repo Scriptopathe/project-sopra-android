@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +34,7 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TimePicker;
@@ -70,6 +72,13 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private ArrayList<Site> listeSites;
     private ArrayList<Particularity> listeParticularities;
+
+    ExpandableListAdapter listAdapter;
+    ExpandableListView expListView;
+    List<String> listDataHeader;
+    HashMap<String, List<String>> listDataChild;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,7 +100,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         /*** Requete Sites ***/
         String targetURL = ("http://10.0.2.2:8080/Api/Sites");
-        System.out.println("////////////////////// avant l'execute Get ! /////////////////////////");
+        System.out.println("////////////////////// avant l'execute Get requete Sites ! /////////////////////////");
         final AsyncTask<String, Void, ResponseHTTP> execute = new HttpGetRequestTask().execute(targetURL);
         try {
             ResponseHTTP result = execute.get();
@@ -142,7 +151,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         /*** Requete Location ***/
         targetURL = ("http://10.0.2.2:8080/Api/Location");
-        System.out.println("////////////////////// avant l'execute Get ! /////////////////////////");
+        System.out.println("////////////////////// avant l'execute Get Requete Location ! /////////////////////////");
         final AsyncTask<String, Void, ResponseHTTP> execute2 = new HttpGetRequestTask().execute(targetURL);
         try {
             ResponseHTTP result = execute2.get();
@@ -175,7 +184,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         /*** Requete Particulariré ***/
         targetURL = ("http://10.0.2.2:8080/Api/Particularities");
-        System.out.println("////////////////////// avant l'execute Get ! /////////////////////////");
+        System.out.println("////////////////////// avant l'execute Get requete particularite! /////////////////////////");
         final AsyncTask<String, Void, ResponseHTTP> execute3 = new HttpGetRequestTask().execute(targetURL);
         try {
             ResponseHTTP result = execute3.get();
@@ -312,18 +321,18 @@ public class MainActivity extends Activity implements OnClickListener {
             //String charset = "UTF-8";  // Or in Java 7 and later, use the constant: java.nio.charset.StandardCharsets.UTF_8.name()
             //int siteId=-1, int personCount=-1, List<ParticularityIdentifier> particularities=null, DateTime? startDate = null, DateTime? endDate = null)
             int param1 = this.siteSpinner.getSelectedItemPosition()+1;
-            int param2 = Integer.parseInt(this.tailleEtxt.getText().toString());
+          //  int param2 = Integer.parseInt(this.tailleEtxt.getText().toString());
             String startDate = fromDateEtxt.getText().toString();
             String endDate = toDateEtxt.getText().toString();
             String[] from_tab = startDate.split("-");
             String[] to_tab = endDate.split("-");
             String param4 = from_tab[1]+"/"+from_tab[0]+"/"+from_tab[2]+"-"+fromTimeEtxt.getText().toString()+":00";
             String param5 = to_tab[1]+"/"+to_tab[0]+"/"+to_tab[2]+"-"+toTimeEtxt.getText().toString()+":00";
-
-            String query = String.format("siteId="+param1+"&personCount="+param2+"&startDate"+param4+"&endDate"+param5);
-
-            String targetURL = ("http://10.0.2.2:8080/Api/SearchWithDate");
-            System.out.println("////////////////////// avant l'execute Post ! /////////////////////////");
+//Search(int siteId = -1, int personCount = -1, int meetingDuration = 15, string[] particularities = null, string startDate = null, string endDate = null)
+            //String query = String.format("siteId="+param1+"&personCount="+param2+"&meetingDuration=30"+"&startDate="+param4+"&endDate="+param5);
+            String query = String.format("siteId=1&meetingDuration=30&personCount=5&startDate=01/11/2015-00:00:00&endDate=15/11/2015-00:00:00");
+            String targetURL = ("http://10.0.2.2:8080/Api/Search");
+            System.out.println("////////////////////// avant l'execute Post Search ! /////////////////////////");
             final AsyncTask<String, Void, ResponseHTTP> execute = new HttpGetRequestTask().execute(targetURL, query);
             try {
                 ResponseHTTP result = execute.get();
@@ -331,7 +340,17 @@ public class MainActivity extends Activity implements OnClickListener {
                 switch(responseCode) {
                     case 200:
                         String response = result.getResponseString();
-                        System.out.println("[" + responseCode + "] String réponse à la connexion: " + response);
+                        System.out.println("[" + responseCode + "] String réponse à la recherche : " + response);
+                        // get the listview
+                        expListView = (ExpandableListView) findViewById(R.id.lvExp);
+
+                        // preparing list data
+                        prepareListData();
+
+                        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+
+                        // setting list adapter
+                        expListView.setAdapter(listAdapter);
                         break;
                 }
             } catch (InterruptedException e) {
@@ -343,7 +362,7 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
     // Exemple de paramètres HTTP contenant un tableau de valeurs : ?cars[]=Saab&cars[]=Audi
-
+    //Permet de vérifier que la date de début ne soit pas après la date de fin et inversement
     private boolean before(String from, String to){
         String[] from_tab = from.split("-");
         String[] to_tab = to.split("-");
@@ -376,7 +395,7 @@ public class MainActivity extends Activity implements OnClickListener {
     protected void onDestroy() {
         super.onDestroy();
         String targetURL = ("http://10.0.2.2:8080/Api/Logout");
-        System.out.println("////////////////////// avant l'execute Get ! /////////////////////////");
+        System.out.println("////////////////////// avant l'execute Get Logout! /////////////////////////");
         final AsyncTask<String, Void, ResponseHTTP> execute = new HttpGetRequestTask().execute(targetURL);
         try {
             ResponseHTTP result = execute.get();
@@ -392,6 +411,45 @@ public class MainActivity extends Activity implements OnClickListener {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+    }
+
+    private void prepareListData() {
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, List<String>>();
+
+        // Adding child data
+        listDataHeader.add("Top 250");
+        listDataHeader.add("Now Showing");
+        listDataHeader.add("Coming Soon..");
+
+        // Adding child data
+        List<String> top250 = new ArrayList<String>();
+        top250.add("The Shawshank Redemption");
+        top250.add("The Godfather");
+        top250.add("The Godfather: Part II");
+        top250.add("Pulp Fiction");
+        top250.add("The Good, the Bad and the Ugly");
+        top250.add("The Dark Knight");
+        top250.add("12 Angry Men");
+
+        List<String> nowShowing = new ArrayList<String>();
+        nowShowing.add("The Conjuring");
+        nowShowing.add("Despicable Me 2");
+        nowShowing.add("Turbo");
+        nowShowing.add("Grown Ups 2");
+        nowShowing.add("Red 2");
+        nowShowing.add("The Wolverine");
+
+        List<String> comingSoon = new ArrayList<String>();
+        comingSoon.add("2 Guns");
+        comingSoon.add("The Smurfs 2");
+        comingSoon.add("The Spectacular Now");
+        comingSoon.add("The Canyons");
+        comingSoon.add("Europa Report");
+
+        listDataChild.put(listDataHeader.get(0), top250); // Header, Child data
+        listDataChild.put(listDataHeader.get(1), nowShowing);
+        listDataChild.put(listDataHeader.get(2), comingSoon);
     }
 
 
