@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="sites_array">
-        <item>Toulouse Les Ramassiers</item>
-        <item>Toulouse Colomiers Perget</item>
-        <item>Toulouse Colomiers 2</item>
+    <string-array name="time_duration_array">
+        <item>15min</item>
+        <item>30min</item>
+        <item>45min</item>
+        <item>1h</item>
+        <item>1h15min</item>
+        <item>1h30min</item>
+        <item>1h45min</item>
+        <item>2h</item>
+        <item>2h15min</item>
+        <item>2h30min</item>
+        <item>2h45min</item>
+        <item>3h</item>
+        <item>3h15min</item>
+        <item>3h30min</item>
+        <item>3h45</item>
+        <item>4h</item>
     </string-array>
 </resources>
