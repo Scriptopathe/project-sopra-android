@@ -15,7 +15,7 @@ import java.net.URL;
 public class HttpGetRequestTask extends AsyncTask<String, Void, ResponseHTTP> {
     protected ResponseHTTP doInBackground(String... urls) {
         HttpURLConnection httpConnection = null;
-        ResponseHTTP responseHTTP;
+        ResponseHTTP responseHTTP = null;
 
         InputStream response = null;
         int status = 0;
@@ -37,10 +37,11 @@ public class HttpGetRequestTask extends AsyncTask<String, Void, ResponseHTTP> {
             //httpConnection.setRequestProperty("Accept-Charset", "UTF-8");
             response = httpConnection.getInputStream();
             status = httpConnection.getResponseCode();
+            responseHTTP = new ResponseHTTP(this.convertStreamToString(response), status);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        responseHTTP = new ResponseHTTP(this.convertStreamToString(response), status);
+
 
         return responseHTTP;
     }

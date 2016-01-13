@@ -17,7 +17,7 @@ import java.net.URL;
 public class HttpPostRequestTask extends AsyncTask<String, Void, ResponseHTTP> {
     protected ResponseHTTP doInBackground(String... urls) {
         HttpURLConnection httpConnection = null;
-        ResponseHTTP responseHTTP;
+        ResponseHTTP responseHTTP = null;
         try {
             httpConnection = (HttpURLConnection) new URL(urls[0]).openConnection();
         } catch (IOException e) {
@@ -42,11 +42,12 @@ public class HttpPostRequestTask extends AsyncTask<String, Void, ResponseHTTP> {
             }
             response = httpConnection.getInputStream();
             status = httpConnection.getResponseCode();
+
+            responseHTTP = new ResponseHTTP(this.convertStreamToString(response), status);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        responseHTTP = new ResponseHTTP(this.convertStreamToString(response), status);
 
         return responseHTTP;
     }

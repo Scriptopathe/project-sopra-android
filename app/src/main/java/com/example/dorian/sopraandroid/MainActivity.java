@@ -1,12 +1,7 @@
 package com.example.dorian.sopraandroid;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,8 +33,11 @@ import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
+import com.example.dorian.sopraandroid.model.Booking;
 import com.example.dorian.sopraandroid.model.Particularity;
+import com.example.dorian.sopraandroid.model.Room;
 import com.example.dorian.sopraandroid.model.Site;
 
 import org.jdom2.Document;
@@ -66,6 +64,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private Button searchButton;
 
     private Spinner siteSpinner;
+    private Spinner timeDurationSpinner;
     private EditText tailleEtxt;
 
     private LinearLayout checkBoxesLayout;
@@ -73,10 +72,10 @@ public class MainActivity extends Activity implements OnClickListener {
     private ArrayList<Site> listeSites;
     private ArrayList<Particularity> listeParticularities;
 
-    ExpandableListAdapter listAdapter;
-    ExpandableListView expListView;
-    List<String> listDataHeader;
-    HashMap<String, List<String>> listDataChild;
+    private ExpandableListView expList;
+    private ExpandableListAdapter listAdapter;
+    private List<String> listDataHeader;
+    private HashMap<String, List<String>> listDataChild;
 
 
     @Override
@@ -88,13 +87,14 @@ public class MainActivity extends Activity implements OnClickListener {
         setContentView(R.layout.activity_main);
         findViewsById();
 
-       /* Spinner spinner = (Spinner) findViewById(R.id.sites_spinner);
+        this.timeDurationSpinner = (Spinner) findViewById(R.id.time_duration_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sites_array, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapterTimeDurationSpinner = ArrayAdapter.createFromResource(this,
+                R.array.time_duration_array, android.R.layout.simple_spinner_item);
         // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapterTimeDurationSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
-        spinner.setAdapter(adapter);*/
+        this.timeDurationSpinner.setAdapter(adapterTimeDurationSpinner);
 
         List<String> spinnerArray =  new ArrayList<String>();
 
@@ -226,6 +226,11 @@ public class MainActivity extends Activity implements OnClickListener {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+
+        /*** Result ***/
+        this.listAdapter = new ExpandableListAdapter(this, null, null);
+        this.listDataHeader = new ArrayList<String>();
+        this.listDataChild = new HashMap<String, List<String>>();
     }
 
     private void findViewsById() {
@@ -244,9 +249,12 @@ public class MainActivity extends Activity implements OnClickListener {
         this.searchButton.setOnClickListener(this);
 
         this.siteSpinner = (Spinner) findViewById(R.id.sites_spinner);
+        this.timeDurationSpinner = (Spinner) findViewById(R.id.time_duration_spinner);
         this.tailleEtxt = (EditText) findViewById(R.id.taille);
 
         this.checkBoxesLayout = (LinearLayout) findViewById(R.id.checkBoxesLayout);
+
+        this.expList = (ExpandableListView) findViewById(R.id.lvExp);
     }
 
     private void setDateTimeFields() {
@@ -299,7 +307,7 @@ public class MainActivity extends Activity implements OnClickListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-      //  getMenuInflater().inflate(R.menu.main, menu);
+        //  getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -321,36 +329,107 @@ public class MainActivity extends Activity implements OnClickListener {
             //String charset = "UTF-8";  // Or in Java 7 and later, use the constant: java.nio.charset.StandardCharsets.UTF_8.name()
             //int siteId=-1, int personCount=-1, List<ParticularityIdentifier> particularities=null, DateTime? startDate = null, DateTime? endDate = null)
             int param1 = this.siteSpinner.getSelectedItemPosition()+1;
-          //  int param2 = Integer.parseInt(this.tailleEtxt.getText().toString());
-            String startDate = fromDateEtxt.getText().toString();
-            String endDate = toDateEtxt.getText().toString();
-            String[] from_tab = startDate.split("-");
-            String[] to_tab = endDate.split("-");
-            String param4 = from_tab[1]+"/"+from_tab[0]+"/"+from_tab[2]+"-"+fromTimeEtxt.getText().toString()+":00";
-            String param5 = to_tab[1]+"/"+to_tab[0]+"/"+to_tab[2]+"-"+toTimeEtxt.getText().toString()+":00";
+            Integer param2 = null;
+            if (!this.tailleEtxt.getText().toString().equals("")) {
+                param2 = Integer.parseInt(this.tailleEtxt.getText().toString());
+            }
+            Integer param3 = null;
+            int timeDurationSelected = this.timeDurationSpinner.getSelectedItemPosition();
+            switch (timeDurationSelected) {
+                case 0: param3 = 15;
+                    break;
+                case 1: param3 = 30;
+                    break;
+                case 2: param3 = 45;
+                    break;
+                case 3: param3 = 60;
+                    break;
+                case 4: param3 = 75;
+                    break;
+                case 5: param3 = 90;
+                    break;
+                case 6: param3 = 105;
+                    break;
+                case 7: param3 = 120;
+                    break;
+                case 8: param3 = 135;
+                    break;
+                case 9: param3= 150;
+                    break;
+                case 10: param3 = 165;
+                    break;
+                case 11: param3 = 180;
+                    break;
+                case 12: param3 = 195;
+                    break;
+                case 13: param3 = 210;
+                    break;
+                case 14: param3 = 225;
+                    break;
+                case 15: param3 = 240;
+                    break;
+            }
+            String startDate = fromDateEtxt.getText().toString().replaceAll("-","/");
+            String endDate = toDateEtxt.getText().toString().replaceAll("-","/");
+            String param4 = startDate+"-"+fromTimeEtxt.getText().toString()+":00";
+            String param5 = endDate+"-"+toTimeEtxt.getText().toString()+":00";
 //Search(int siteId = -1, int personCount = -1, int meetingDuration = 15, string[] particularities = null, string startDate = null, string endDate = null)
-            //String query = String.format("siteId="+param1+"&personCount="+param2+"&meetingDuration=30"+"&startDate="+param4+"&endDate="+param5);
-            String query = String.format("siteId=1&meetingDuration=30&personCount=5&startDate=01/11/2015-00:00:00&endDate=15/11/2015-00:00:00");
+            String query;
+            if (param2 != null) {
+                query = String.format("siteId=" + param1 + "&personCount=" + param2 + "&meetingDuration=" + param3 + "&startDate=" + param4 + "&endDate=" + param5);
+            }
+            else {
+                query = String.format("siteId=" + param1 + "&personCount=1&meetingDuration=" + param3 + "&startDate=" + param4 + "&endDate=" + param5);
+            }
+            //query = String.format("siteId=1&personCount=5&meetingDuration=30&startDate=01/11/2015-00:00:00&endDate=15/11/2015-00:00:00");
             String targetURL = ("http://10.0.2.2:8080/Api/Search");
             System.out.println("////////////////////// avant l'execute Post Search ! /////////////////////////");
             final AsyncTask<String, Void, ResponseHTTP> execute = new HttpGetRequestTask().execute(targetURL, query);
+            ResponseHTTP result = null;
             try {
-                ResponseHTTP result = execute.get();
+                result = execute.get();
                 int responseCode = result.getResponseCode();
                 switch(responseCode) {
                     case 200:
                         String response = result.getResponseString();
-                        System.out.println("[" + responseCode + "] String réponse à la recherche : " + response);
-                        // get the listview
-                        expListView = (ExpandableListView) findViewById(R.id.lvExp);
+                        System.out.println("[" + responseCode + "] String réponse à la connexion: " + response);
+                        SAXBuilder saxBuilder = new SAXBuilder();
+                        try {
+                            Document doc = saxBuilder.build(new StringReader(response));
+                            Element xmlfile = doc.getRootElement();
+                            System.out.println("ROOT -->" + xmlfile);
+                            //Liste d'element contenant une salle et ses bookings dispo
+                            List<Element> listOfRoomSearchResult = xmlfile.getChildren("RoomSearchResult");
+                            Iterator i = listOfRoomSearchResult.iterator();
+                            System.out.println("list of roomSearchResult : "+listOfRoomSearchResult.size());
+                            int l =0;
+                            while (i.hasNext() ) {
+                                //liste temporaire pour les fils
+                                List<String> tempList = new ArrayList<String>();
 
-                        // preparing list data
-                        prepareListData();
+                                //On récupère l'element courant de RoomSearchResult
+                                Element courantRoomSearch = (Element) i.next();
 
-                        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+                                System.out.println("on sauvegarde la valeur de room");
+                                //on sauvegarde la room
+                                Room r = new Room(courantRoomSearch);
 
-                        // setting list adapter
-                        expListView.setAdapter(listAdapter);
+                                //Le nom de la salle devient un header pour l'affichage
+                                this.listDataHeader.add(r.getName());
+
+                                //les bookings de la salle deviennent des childen pour l'affichage
+                                ArrayList<Booking> bookings = r.getBookings();
+                                for (int k=0; k<bookings.size(); k++) {
+                                    tempList.add(bookings.get(k).getDay() + " from " + bookings.get(k).getStartTime() + " to " + bookings.get(k).getEndTime());
+                                }
+                                this.listDataChild.put(listDataHeader.get(l), tempList); // Header, Child data
+                                l++;
+                            }
+                        } catch (JDOMException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         break;
                 }
             } catch (InterruptedException e) {
@@ -358,6 +437,13 @@ public class MainActivity extends Activity implements OnClickListener {
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
+
+            /*** expandableListAdapter ***/
+
+            System.out.println("List Data Header : " +this.listDataHeader.toString());
+            listAdapter.setLists(this.listDataHeader, this.listDataChild);
+            // setting list adapter
+            this.expList.setAdapter(listAdapter);
         }
     }
 
@@ -412,45 +498,5 @@ public class MainActivity extends Activity implements OnClickListener {
             e.printStackTrace();
         }
     }
-
-    private void prepareListData() {
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
-
-        // Adding child data
-        listDataHeader.add("Top 250");
-        listDataHeader.add("Now Showing");
-        listDataHeader.add("Coming Soon..");
-
-        // Adding child data
-        List<String> top250 = new ArrayList<String>();
-        top250.add("The Shawshank Redemption");
-        top250.add("The Godfather");
-        top250.add("The Godfather: Part II");
-        top250.add("Pulp Fiction");
-        top250.add("The Good, the Bad and the Ugly");
-        top250.add("The Dark Knight");
-        top250.add("12 Angry Men");
-
-        List<String> nowShowing = new ArrayList<String>();
-        nowShowing.add("The Conjuring");
-        nowShowing.add("Despicable Me 2");
-        nowShowing.add("Turbo");
-        nowShowing.add("Grown Ups 2");
-        nowShowing.add("Red 2");
-        nowShowing.add("The Wolverine");
-
-        List<String> comingSoon = new ArrayList<String>();
-        comingSoon.add("2 Guns");
-        comingSoon.add("The Smurfs 2");
-        comingSoon.add("The Spectacular Now");
-        comingSoon.add("The Canyons");
-        comingSoon.add("Europa Report");
-
-        listDataChild.put(listDataHeader.get(0), top250); // Header, Child data
-        listDataChild.put(listDataHeader.get(1), nowShowing);
-        listDataChild.put(listDataHeader.get(2), comingSoon);
-    }
-
 
 }
