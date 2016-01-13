@@ -178,7 +178,7 @@ public class MainActivity extends Activity implements OnClickListener {
         this.toDateEtxt.setText(this.dateFormatter.format(new Date().getTime()));
 
 
-        DateFormat timeFormatter = new SimpleDateFormat("kk:mm");
+        DateFormat timeFormatter = new SimpleDateFormat("HH:mm");
         this.fromTimeEtxt.setText(timeFormatter.format(new Date().getTime()));
         this.toTimeEtxt.setText(timeFormatter.format(new Date().getTime()));
 
