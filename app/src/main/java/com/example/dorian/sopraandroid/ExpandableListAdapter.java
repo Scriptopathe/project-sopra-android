@@ -13,12 +13,25 @@ import java.util.List;
 
 /**
  * Created by dorian on 12/01/16.
+ *
+ * Class responsible for the adaptation of the the rooms we receive in XML, to show them in an expandable
+ * list.
  */
 public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     private Context context;
+
+    /**
+     * List containing the names of the rooms (it's what is going to be shown in the main list, then
+     * you will be able to expend it and show the different time range avai
+     */
     private List<String> listDataHeader; // header titles
     // child data in format of header title, child title
+    /**
+     * Hashmap associating a room name (an element of @see listDataHeader) to all the free time slots
+     * corresponding to the request. Those element will be expend bellow the room name when the user
+     * touches a room name.
+     */
     private HashMap<String, List<String>> listDataChild;
 
     public ExpandableListAdapter(Context context, List<String> listDataHeader,

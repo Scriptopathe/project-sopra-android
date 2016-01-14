@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.TimePickerDialog;
@@ -34,7 +33,6 @@ import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.dorian.sopraandroid.model.Booking;
 import com.example.dorian.sopraandroid.model.Particularity;
@@ -46,6 +44,10 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
+/**
+ * This activity is the main activity of the application, where the research of rooms is made and where
+ * the results are displayed.
+ */
 public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     //UI References
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         List<String> spinnerArray =  new ArrayList<String>();
 
         /*** Requete Sites ***/
-        String targetURL = ("http://10.0.2.2:8080/Api/Sites");
+        String targetURL = ("http://"+Constantes.SERVER+"/Api/Sites");
         System.out.println("////////////////////// avant l'execute Get requete Sites ! /////////////////////////");
         final AsyncTask<String, Void, ResponseHTTP> execute = new HttpGetRequestTask().execute(targetURL);
         try {
@@ -151,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
 
         /*** Requete Location ***/
-        targetURL = ("http://10.0.2.2:8080/Api/Location");
+        targetURL = ("http://"+Constantes.SERVER+"/Api/Location");
         System.out.println("////////////////////// avant l'execute Get Requete Location ! /////////////////////////");
         final AsyncTask<String, Void, ResponseHTTP> execute2 = new HttpGetRequestTask().execute(targetURL);
         try {
@@ -184,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         this.toTimeEtxt.setText(timeFormatter.format(new Date().getTime()));
 
         /*** Requete Particulariré ***/
-        targetURL = ("http://10.0.2.2:8080/Api/Particularities");
+        targetURL = ("http://"+Constantes.SERVER+"/Api/Particularities");
         System.out.println("////////////////////// avant l'execute Get requete particularite! /////////////////////////");
         final AsyncTask<String, Void, ResponseHTTP> execute3 = new HttpGetRequestTask().execute(targetURL);
         try {
@@ -258,6 +260,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         this.expList = (ExpandableListView) findViewById(R.id.lvExp);
     }
 
+    /**
+     * This method is here to set the time and date fields with the current time and date values. And
+     * it also configures the specific date and time pickers.
+     */
     private void setDateTimeFields() {
         this.fromDateEtxt.setOnClickListener(this);
         this.toDateEtxt.setOnClickListener(this);
@@ -296,7 +302,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 fromTimeEtxt.setText(hourOfDay + ":" + minute);
             }
         }, newCalendar.get(Calendar.HOUR_OF_DAY), newCalendar.get(Calendar.MINUTE), true);
-        //fromTimePickerDialog.show();
 
         toTimePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -305,13 +310,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }, newCalendar.get(Calendar.HOUR_OF_DAY), newCalendar.get(Calendar.MINUTE), true);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //  getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
+    /**
+     * Handles the displaying of the different date and time pickers.
+     * And it's also in this method that we display the rooms corresponding to the response of our
+     * search request when we click on the "Search" button.
+     * @param view
+     */
     @Override
     public void onClick(View view) {
         if(view == fromDateEtxt) {
@@ -327,8 +331,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             toTimePickerDialog.show();
         }
         else if (view == searchButton) {
-            //String charset = "UTF-8";  // Or in Java 7 and later, use the constant: java.nio.charset.StandardCharsets.UTF_8.name()
-            //int siteId=-1, int personCount=-1, List<ParticularityIdentifier> particularities=null, DateTime? startDate = null, DateTime? endDate = null)
             int param1 = this.siteSpinner.getSelectedItemPosition()+1;
             Integer param2 = null;
             if (!this.tailleEtxt.getText().toString().equals("")) {
@@ -374,7 +376,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             String endDate = toDateEtxt.getText().toString().replaceAll("-","/");
             String param4 = startDate+"-"+fromTimeEtxt.getText().toString()+":00";
             String param5 = endDate+"-"+toTimeEtxt.getText().toString()+":00";
-//Search(int siteId = -1, int personCount = -1, int meetingDuration = 15, string[] particularities = null, string startDate = null, string endDate = null)
             String query;
             if (param2 != null) {
                 query = String.format("siteId=" + param1 + "&personCount=" + param2 + "&meetingDuration=" + param3 + "&startDate=" + param4 + "&endDate=" + param5);
@@ -382,9 +383,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             else {
                 query = String.format("siteId=" + param1 + "&personCount=1&meetingDuration=" + param3 + "&startDate=" + param4 + "&endDate=" + param5);
             }
-            //query = String.format("siteId=1&personCount=5&meetingDuration=30&startDate=01/11/2015-00:00:00&endDate=15/11/2015-00:00:00");
-            String targetURL = ("http://10.0.2.2:8080/Api/Search");
-            System.out.println("////////////////////// avant l'execute Post Search ! /////////////////////////");
+            String targetURL = ("http://"+Constantes.SERVER+"/Api/Search");
+            System.out.println("////////////////////// avant l'execute Get Search ! /////////////////////////");
             final AsyncTask<String, Void, ResponseHTTP> execute = new HttpGetRequestTask().execute(targetURL, query);
             ResponseHTTP result = null;
             try {
@@ -439,8 +439,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 e.printStackTrace();
             }
 
-            /*** expandableListAdapter ***/
-
             System.out.println("List Data Header : " +this.listDataHeader.toString());
             listAdapter.setLists(this.listDataHeader, this.listDataChild);
             // setting list adapter
@@ -448,8 +446,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
-    // Exemple de paramètres HTTP contenant un tableau de valeurs : ?cars[]=Saab&cars[]=Audi
-    //Permet de vérifier que la date de début ne soit pas après la date de fin et inversement
+    /**
+     * Permet de vérifier que la date de début ne soit pas après la date de fin et inversement
+     * @param from La chaîne de caractères correspondant à la date de début
+     * @param to La chaîne de caractères correspondant à la date de fin
+     * @return Vrai si la date de début est bien avant la date de fin, faux sinon.
+     */
     private boolean before(String from, String to){
         String[] from_tab = from.split("-");
         String[] to_tab = to.split("-");
@@ -478,10 +480,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
+    /**
+     * Quand on quitte l'activité en touchant le bouton "Précédent" d'Android, cela nous déconnecte (n'est pas appelé quand l'application est quitté autrement)
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        String targetURL = ("http://10.0.2.2:8080/Api/Logout");
+        String targetURL = ("http://"+Constantes.SERVER+"/Api/Logout");
         System.out.println("////////////////////// avant l'execute Get Logout! /////////////////////////");
         final AsyncTask<String, Void, ResponseHTTP> execute = new HttpGetRequestTask().execute(targetURL);
         try {
