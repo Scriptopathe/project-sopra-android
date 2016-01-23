@@ -11,6 +11,6 @@ And change the following line:
 
     public static final String SERVER = "[ADDRESS:PORT]";
 
-By replacing **[ADDRESS:PORT]** with the value you need.
+By replacing `[ADDRESS:PORT]` with the value you need.
 
 Note that if your server is at *example.com* and and the API at *example.com/api*, you should just put *example.com* because the software automatically add the */api*.
