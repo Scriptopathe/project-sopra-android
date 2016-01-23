@@ -2,8 +2,6 @@ package com.example.dorian.sopraandroid.model;
 
 import org.jdom2.Element;
 
-import java.util.Iterator;
-
 /**
  * Created by dorian on 04/01/16.
  */

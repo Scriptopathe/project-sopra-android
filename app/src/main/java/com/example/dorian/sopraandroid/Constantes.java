@@ -10,7 +10,9 @@ public class Constantes {
      * If you run the server on the same computer as you launch the Android emulator, you need to use
      * the address 10.0.2.2, it's the equivalent of localhost. 10.0.2.2 is where the emulator sees
      * the computer.
-     * (for example, value during test : "10.0.2.2:8080")
+     * Examples :
+     * *value during test in local : "10.0.2.2:8080"
+     * *value during implementation test : "sproject-demo.azurewebsites.net/api"
      */
     public static final String SERVER = "10.0.2.2:8080";
 

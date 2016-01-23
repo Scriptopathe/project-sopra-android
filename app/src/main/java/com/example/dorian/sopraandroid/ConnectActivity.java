@@ -21,12 +21,24 @@ import java.util.concurrent.ExecutionException;
  * This Activity is the Activity Launch at the startup of the application
  */
 public class ConnectActivity extends AppCompatActivity {
-    Button connectButton = null;
+    private Button connectButton = null;
     private EditText nick = null;
     private EditText pass = null;
 
+    /**
+     * Used when the REMEMBER_USER constant is true when compiling, this is for the android preferences
+     * feature
+     */
     public static final String PREFS_NAME = "MyPrefsFile";
+    /**
+     * Used when the REMEMBER_USER constant is true when compiling, this is for the android preferences
+     * feature
+     */
     private static final String PREF_USERNAME = "username";
+    /**
+     * Used when the REMEMBER_USER constant is true when compiling, this is for the android preferences
+     * feature
+     */
     private static final String PREF_PASSWORD = "password";
 
     /**
@@ -46,7 +58,8 @@ public class ConnectActivity extends AppCompatActivity {
         String username = null;
         String password = null;
         if (Constantes.REMEMBER_USER) {
-            // On récupère les informations enregistrées de l'utilisateur
+            // On récupère les informations enregistrées de l'utilisateur dans le système des préférences
+            // d'android
             SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
             username = pref.getString(PREF_USERNAME, null);
             password = pref.getString(PREF_PASSWORD, null);

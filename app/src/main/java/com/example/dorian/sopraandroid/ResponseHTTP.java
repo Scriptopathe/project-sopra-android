@@ -1,10 +1,5 @@
 package com.example.dorian.sopraandroid;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 /**
  * Created by amandine on 14/12/2015.
  *
