@@ -12,7 +12,7 @@ public class Constantes {
      * the computer.
      * Examples :
      * *value during test in local : "10.0.2.2:8080"
-     * *value during implementation test : "sproject-demo.azurewebsites.net/api"
+     * *value during implementation test : "sproject-demo.azurewebsites.net"
      */
     public static final String SERVER = "10.0.2.2:8080";
 
