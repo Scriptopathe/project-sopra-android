@@ -1,4 +1,4 @@
-package com.example.dorian.sopraandroid;
+package com.example.dorian.sopraandroid.http;
 
 /**
  * Created by amandine on 14/12/2015.

@@ -33,6 +33,8 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
+import com.example.dorian.sopraandroid.http.HttpGetRequestTask;
+import com.example.dorian.sopraandroid.http.ResponseHTTP;
 import com.example.dorian.sopraandroid.model.Booking;
 import com.example.dorian.sopraandroid.model.Particularity;
 import com.example.dorian.sopraandroid.model.Room;

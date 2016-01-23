@@ -10,6 +10,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.dorian.sopraandroid.http.HttpPostRequestTask;
+import com.example.dorian.sopraandroid.http.ResponseHTTP;
+
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;

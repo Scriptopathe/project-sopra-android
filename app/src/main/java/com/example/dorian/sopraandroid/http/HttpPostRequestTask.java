@@ -1,4 +1,4 @@
-package com.example.dorian.sopraandroid;
+package com.example.dorian.sopraandroid.http;
 
 import android.os.AsyncTask;
 
@@ -6,42 +6,48 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 
 /**
- * Created by dorian on 28/12/15.
+ * Created by amandine on 14/12/2015.
  */
-public class HttpGetRequestTask extends AsyncTask<String, Void, ResponseHTTP> {
+public class HttpPostRequestTask extends AsyncTask<String, Void, ResponseHTTP> {
     protected ResponseHTTP doInBackground(String... urls) {
         HttpURLConnection httpConnection = null;
         ResponseHTTP responseHTTP = null;
-
-        InputStream response = null;
-        int status = 0;
-
         try {
-            // S'il n'y a pas de paramètres à la requête HTTP
-            if (urls.length == 1) {
-                httpConnection = (HttpURLConnection) new URL(urls[0]).openConnection();
-                System.out.println("Code de réponse (pas de paramètres) : " + httpConnection.getResponseCode());
-            }
-            // S'il y a des paramètres à la requête HTTP
-            else if (urls.length == 2) {
-                httpConnection = (HttpURLConnection) new URL(urls[0] + "?" + urls[1]).openConnection();
-                System.out.println("Code de réponse (avec paramètres) : "+httpConnection.getResponseCode());
-            }
-            else {
-                // Lever un exception disant que la méthode a été appelée avec trop d'arguments
-            }
-            //httpConnection.setRequestProperty("Accept-Charset", "UTF-8");
-            response = httpConnection.getInputStream();
-            status = httpConnection.getResponseCode();
-            responseHTTP = new ResponseHTTP(this.convertStreamToString(response), status);
+            httpConnection = (HttpURLConnection) new URL(urls[0]).openConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        try {
+            httpConnection.setRequestMethod("POST");
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        }
+        httpConnection.setDoOutput(true); // Triggers POST.
+        httpConnection.setRequestProperty("Accept-Charset", "UTF-8");
 
+        httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + "UTF-8");
+        InputStream response = null;
+        int status = 0;
+        try {
+            OutputStream output = httpConnection.getOutputStream();
+            // S'il y a des paramètres
+            if (urls.length == 2) {
+                output.write(urls[1].getBytes("UTF-8"));
+            }
+            response = httpConnection.getInputStream();
+            status = httpConnection.getResponseCode();
+
+            responseHTTP = new ResponseHTTP(this.convertStreamToString(response), status);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         return responseHTTP;
     }
